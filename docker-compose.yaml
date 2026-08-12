@@ -1,0 +1,45 @@
+services:
+  thoughtcanvas-db:
+    image: postgres:16-alpine
+    container_name: thoughtcanvas-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-thoughtcanvas}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  thoughtcanvas-backend:
+    build: ./backend
+    container_name: thoughtcanvas-backend
+    restart: always
+    ports:
+      - "5000:5000" # Expose backend port for direct access
+    depends_on:
+      thoughtcanvas-db:
+        condition: service_healthy
+    environment:
+      DB_HOST: thoughtcanvas-db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-thoughtcanvas}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+
+  thoughtcanvas-frontend:
+    build: ./frontend
+    container_name: thoughtcanvas-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - thoughtcanvas-backend
+
+volumes:
+  pgdata:
