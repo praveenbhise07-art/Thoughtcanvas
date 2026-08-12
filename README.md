@@ -1,4 +1,3 @@
-cat << 'EOF' > README.md
 # 🛤️ ThoughtCanvas — High-Performance Technical & Blog Platform
 
 A modern, high-performance technical documentation and blog platform built with a 3-tier architecture — React frontend, Node.js backend, and PostgreSQL database.
@@ -29,11 +28,20 @@ A modern, high-performance technical documentation and blog platform built with 
 
 ## 🏗️ Architecture
 
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐│   Frontend   │────▶│   Backend    │────▶│  PostgreSQL  ││   (React +   │◀────│  (Node.js +  │◀────│              ││    Nginx)    │     │   Express)   │     │              ││   Port 80    │     │  Port 5000   │     │  Port 5432   │└──────────────┘     └──────────────┘     └──────────────┘
-## 📁 Project Structure
 
-ThoughtCanvas/├── frontend/                # React (Vite) frontend│   ├── src/                 # React components, pages & assets│   ├── nginx.conf           # Custom Nginx proxy & SPA router config│   ├── Dockerfile           # Multi-stage production container build│   └── package.json├── backend/                 # Node.js Express API│   ├── src/                 # Routes, DB connection & controllers│   └── package.json├── deploy/                  # Deployment scripts & configurations└── README.md
----
+
+## 📁 Project Structure
+ThoughtCanvas/
+├── frontend/                # React (Vite) frontend
+│   ├── src/                 # React components, pages & assets
+│   ├── nginx.conf           # Custom Nginx proxy & SPA router config
+│   ├── Dockerfile           # Multi-stage production container build
+│   └── package.json
+├── backend/                 # Node.js Express API
+│   ├── src/                 # Routes, DB connection & controllers
+│   └── package.json
+├── deploy/                  # Deployment scripts & configurations
+└── README.md
 
 ## 🐳 Running with Docker Compose
 
@@ -41,4 +49,19 @@ To run the entire stack locally using containers:
 
 ```bash
 docker compose up -d --build
-Access your application at http://localhost.📡 API EndpointsMethodEndpointDescriptionGET/api/healthHealth checkGET/api/postsGet all published articlesGET/api/posts/:idGet single article with commentsPOST/api/postsPublish a new technical articlePUT/api/posts/:idUpdate an articleDELETE/api/posts/:idDelete an articleGET/api/comments/post/:postIdGet comments for a postPOST/api/posts/:id/commentsAdd a comment to an articleDELETE/api/comments/:idDelete a commentBuilt with 💜 by the ThoughtCanvas team. Innovate. Deploy. Empower. 🛤️EOF
+Access your application at http://localhost.📡 
+
+## 📡 API Endpoints
+
+- **GET /api/health** - Health check
+- **GET /api/posts** - Get all published articles
+- **GET /api/posts/:id** - Get single article with comments
+- **POST /api/posts** - Publish a new technical article
+- **PUT /api/posts/:id** - Update an article
+- **DELETE /api/posts/:id** - Delete an article
+- **GET /api/comments/post/:postId** - Get comments for a post
+- **POST /api/posts/:id/comments** - Add a comment to an article
+- **DELETE /api/comments/:id** - Delete a comment
+
+Built with 💜 by the ThoughtCanvas team. Innovate. Deploy. Empower. 🛤️
+EOF
