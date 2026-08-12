@@ -2,179 +2,228 @@
 
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square\&logo=react)
 ![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat-square\&logo=node.js)
-![Express](https://img.shields.io/badge/Express.js-4.x-000000?style=flat-square\&logo=express)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square\&logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=flat-square\&logo=docker)
 ![Jenkins](https://img.shields.io/badge/Jenkins-CI%2FCD-D24939?style=flat-square\&logo=jenkins)
 ![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=flat-square\&logo=terraform)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-AKS-326CE5?style=flat-square\&logo=kubernetes)
 ![Azure](https://img.shields.io/badge/Microsoft%20Azure-Cloud-0078D4?style=flat-square\&logo=microsoftazure)
+![ACR](https://img.shields.io/badge/Azure%20Container%20Registry-ACR-0078D4?style=flat-square)
+![SonarQube](https://img.shields.io/badge/SonarQube-Code%20Quality-4E9BCD?style=flat-square)
+![Trivy](https://img.shields.io/badge/Trivy-Security-1904DA?style=flat-square)
 
 ---
 
 ## 📌 Project Overview
 
-**ThoughtCanvas** is a cloud-native technical documentation and blogging platform designed to provide a centralized workspace for creating, publishing, updating, and discussing technical articles, architecture notes, and engineering documentation.
+**ThoughtCanvas** is a modern technical documentation and blogging platform designed to provide a centralized workspace for creating, publishing, updating, and discussing technical articles, architectural notes, and engineering documentation.
 
 The application follows a **3-tier architecture**:
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│                        USERS / CLIENTS                       │
-└──────────────────────────────┬───────────────────────────────┘
-                               │
-                               ▼
-┌──────────────────────────────────────────────────────────────┐
-│                    FRONTEND APPLICATION                      │
-│                  React 18 + Nginx                            │
-│                       Port 80                                │
-└──────────────────────────────┬───────────────────────────────┘
-                               │ REST API
-                               ▼
-┌──────────────────────────────────────────────────────────────┐
-│                     BACKEND API                             │
-│                Node.js + Express                            │
-│                     Port 5000                                │
-└──────────────────────────────┬───────────────────────────────┘
-                               │ SQL
-                               ▼
-┌──────────────────────────────────────────────────────────────┐
-│                     DATABASE                                 │
-│                  PostgreSQL 16                               │
-│                     Port 5432                                │
-└──────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                     PRESENTATION TIER                   │
+│                                                         │
+│                 React + Nginx Frontend                  │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                         REST API
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│                    APPLICATION TIER                     │
+│                                                         │
+│               Node.js + Express Backend                 │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                          SQL
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│                       DATA TIER                         │
+│                                                         │
+│                    PostgreSQL Database                  │
+└─────────────────────────────────────────────────────────┘
 ```
 
-The application is containerized using Docker and is designed to support automated **CI/CD, infrastructure provisioning, security scanning, and cloud deployment**.
+The application is containerized using **Docker**, images are stored in **Azure Container Registry (ACR)**, and the application containers are hosted on **Azure App Service**.
+
+The complete CI/CD workflow is automated using **Jenkins**, while Azure infrastructure is provisioned using **Terraform**.
 
 ---
 
 # 🎯 Project Objectives
 
-The primary objectives of ThoughtCanvas are:
+The objective of Project 5 is to implement a production-style DevOps and DevSecOps workflow for a containerized full-stack application.
 
-* Build a production-style full-stack web application.
-* Implement a clean 3-tier application architecture.
-* Replace MongoDB with PostgreSQL for relational data persistence.
-* Containerize frontend, backend, and database components.
-* Implement Infrastructure as Code using Terraform.
-* Build an automated CI/CD pipeline using Jenkins.
-* Integrate source control with GitHub.
-* Build and publish Docker images to Azure Container Registry.
-* Deploy containerized workloads to Azure Kubernetes Service.
-* Implement application and container security scanning.
-* Implement health checks and deployment validation.
-* Separate application configuration from source code.
-* Follow DevOps and DevSecOps best practices.
+The project demonstrates:
+
+* 3-tier application architecture
+* React frontend development
+* Node.js and Express REST API
+* PostgreSQL database integration
+* Docker containerization
+* Docker Compose for local development
+* GitHub source control
+* Jenkins CI/CD automation
+* GitHub webhook integration
+* SonarQube code quality analysis
+* Trivy container vulnerability scanning
+* Azure Container Registry for image management
+* Azure App Service for container hosting
+* Terraform Infrastructure as Code
+* Automated deployment validation
+* Environment-based application configuration
+* Secure handling of application credentials
 
 ---
 
-# 🏗️ High-Level Architecture
+# 🏗️ Solution Architecture
 
 ## Application Architecture
 
 ```text
-                         ┌─────────────────┐
-                         │      Users      │
-                         └────────┬────────┘
+                         ┌──────────────────┐
+                         │      USERS       │
+                         └────────┬─────────┘
                                   │
                                   ▼
-                         ┌─────────────────┐
-                         │  React Frontend │
-                         │    + Nginx      │
-                         └────────┬────────┘
-                                  │
-                             REST API
-                                  │
-                                  ▼
-                         ┌─────────────────┐
-                         │  Node.js API    │
-                         │    Express      │
-                         └────────┬────────┘
-                                  │
-                               SQL
-                                  │
-                                  ▼
-                         ┌─────────────────┐
-                         │   PostgreSQL    │
-                         │      16         │
-                         └─────────────────┘
+                    ┌─────────────────────────┐
+                    │    Azure App Service    │
+                    │                         │
+                    │   Frontend Web App      │
+                    │                         │
+                    │ React + Nginx Container  │
+                    └────────────┬────────────┘
+                                 │
+                              REST API
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │    Azure App Service    │
+                    │                         │
+                    │    Backend Web App      │
+                    │                         │
+                    │ Node.js + Express       │
+                    └────────────┬────────────┘
+                                 │
+                                SQL
+                                 │
+                                 ▼
+                    ┌─────────────────────────┐
+                    │       PostgreSQL        │
+                    │                         │
+                    │   Application Database  │
+                    └─────────────────────────┘
 ```
 
 ---
 
-# ☁️ Cloud & DevOps Architecture
-
-The production deployment follows a cloud-native approach:
+# 🚀 CI/CD Architecture
 
 ```text
-                         ┌──────────────┐
-                         │   GitHub     │
-                         │ Source Code  │
-                         └──────┬───────┘
-                                │
-                             Webhook
-                                │
-                                ▼
-                     ┌─────────────────────┐
-                     │       Jenkins       │
-                     │    CI/CD Pipeline   │
-                     └──────────┬──────────┘
-                                │
-              ┌─────────────────┼─────────────────┐
-              │                 │                 │
-              ▼                 ▼                 ▼
-        ┌───────────┐    ┌────────────┐    ┌────────────┐
-        │  SonarQube│    │   Trivy    │    │   Tests    │
-        │ Code Scan │    │Image Scan  │    │ Unit Tests │
-        └───────────┘    └────────────┘    └────────────┘
-                                │
-                                ▼
-                     ┌─────────────────────┐
-                     │ Azure Container     │
-                     │ Registry (ACR)      │
-                     └──────────┬──────────┘
-                                │
-                                ▼
-                     ┌─────────────────────┐
-                     │ Azure Kubernetes    │
-                     │ Service (AKS)       │
-                     └──────────┬──────────┘
-                                │
-                 ┌──────────────┼──────────────┐
-                 ▼              ▼              ▼
-           ┌──────────┐   ┌──────────┐   ┌──────────┐
-           │ Frontend │   │ Backend  │   │Database  │
-           │  Pods    │   │  Pods    │   │ Service  │
-           └──────────┘   └──────────┘   └──────────┘
+                         ┌──────────────────┐
+                         │     Developer    │
+                         └────────┬─────────┘
+                                  │
+                               git push
+                                  │
+                                  ▼
+                         ┌──────────────────┐
+                         │      GitHub      │
+                         │ Source Control   │
+                         └────────┬─────────┘
+                                  │
+                             Webhook Trigger
+                                  │
+                                  ▼
+                         ┌──────────────────┐
+                         │     Jenkins      │
+                         │    CI/CD Server  │
+                         └────────┬─────────┘
+                                  │
+              ┌───────────────────┼───────────────────┐
+              │                   │                   │
+              ▼                   ▼                   ▼
+       ┌────────────┐      ┌────────────┐      ┌────────────┐
+       │ Unit Tests │      │ SonarQube  │      │   Trivy    │
+       │            │      │ Code Scan  │      │Image Scan  │
+       └────────────┘      └────────────┘      └────────────┘
+                                  │
+                                  ▼
+                         ┌──────────────────┐
+                         │   Docker Build   │
+                         │ Versioned Images │
+                         └────────┬─────────┘
+                                  │
+                                  ▼
+                     ┌────────────────────────┐
+                     │ Azure Container        │
+                     │ Registry (ACR)         │
+                     └───────────┬────────────┘
+                                 │
+                              Pull Image
+                                 │
+                                 ▼
+                     ┌────────────────────────┐
+                     │    Azure App Service   │
+                     │                        │
+                     │ Frontend Web App       │
+                     │ Backend Web App        │
+                     └───────────┬────────────┘
+                                 │
+                                 ▼
+                         Health Validation
 ```
 
-Infrastructure is provisioned using **Terraform** and application deployment is automated through Jenkins.
+---
+
+# ☁️ Azure Infrastructure
+
+Terraform is used to provision and manage the Azure resources required by the application.
+
+```text
+                 Azure Subscription
+                         │
+                         ▼
+                 ┌───────────────┐
+                 │ Resource Group│
+                 └───────┬───────┘
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+          ▼              ▼              ▼
+   App Service Plan     ACR        PostgreSQL
+          │
+     ┌────┴────┐
+     │         │
+     ▼         ▼
+ Frontend   Backend
+ Web App    Web App
+```
+
+Terraform manages infrastructure consistently across environments.
 
 ---
 
 # 🧰 Technology Stack
 
-| Layer                  | Technology                                  |
-| ---------------------- | ------------------------------------------- |
-| Frontend               | React 18                                    |
-| Frontend Web Server    | Nginx                                       |
-| Backend                | Node.js 20                                  |
-| API Framework          | Express.js                                  |
-| Database               | PostgreSQL 16                               |
-| API Communication      | REST                                        |
-| Source Control         | Git / GitHub                                |
-| Containerization       | Docker                                      |
-| Local Orchestration    | Docker Compose                              |
-| CI/CD                  | Jenkins                                     |
-| Infrastructure as Code | Terraform                                   |
-| Container Registry     | Azure Container Registry                    |
-| Container Platform     | Azure Kubernetes Service                    |
-| Code Quality           | SonarQube                                   |
-| Container Security     | Trivy                                       |
-| Cloud Platform         | Microsoft Azure                             |
-| Kubernetes Packaging   | Helm                                        |
-| Monitoring             | Kubernetes health checks / Azure monitoring |
+| Category               | Technology               |
+| ---------------------- | ------------------------ |
+| Frontend               | React 18                 |
+| Web Server             | Nginx                    |
+| Backend                | Node.js 20               |
+| API Framework          | Express.js               |
+| Database               | PostgreSQL 16            |
+| Source Control         | Git / GitHub             |
+| Containerization       | Docker                   |
+| Local Orchestration    | Docker Compose           |
+| CI/CD                  | Jenkins                  |
+| Code Quality           | SonarQube                |
+| Security Scanning      | Trivy                    |
+| Container Registry     | Azure Container Registry |
+| Application Hosting    | Azure App Service        |
+| Infrastructure as Code | Terraform                |
+| Cloud Platform         | Microsoft Azure          |
 
 ---
 
@@ -202,11 +251,6 @@ ThoughtCanvas/
 │   ├── package.json
 │   └── ...
 │
-├── deploy/
-│   ├── kubernetes/
-│   ├── helm/
-│   └── scripts/
-│
 ├── terraform/
 │   ├── main.tf
 │   ├── variables.tf
@@ -214,62 +258,85 @@ ThoughtCanvas/
 │   ├── providers.tf
 │   └── terraform.tfvars.example
 │
-├── Jenkinsfile
+├── deploy/
+│   └── scripts/
+│
 ├── docker-compose.yml
+├── Jenkinsfile
 ├── .gitignore
-├── README.md
-└── ...
+└── README.md
 ```
 
 ---
 
-# 🔄 Application Workflow
+# 🖥️ Application Components
 
-A typical user request follows this flow:
+## Frontend
+
+The frontend is developed using **React** and served through **Nginx**.
+
+Responsibilities include:
+
+* User interface
+* Article listing
+* Article creation
+* Article editing
+* Article deletion
+* Comment interface
+* API communication
+
+The frontend is packaged as a Docker image.
+
+---
+
+## Backend
+
+The backend is implemented using **Node.js and Express**.
+
+Responsibilities include:
+
+* REST API
+* Business logic
+* Request validation
+* Database communication
+* Article management
+* Comment management
+* Health checks
+
+The backend is packaged as a separate Docker image.
+
+---
+
+## Database
+
+PostgreSQL is used as the application's relational database.
+
+The database stores:
+
+* Articles
+* Comments
+* Authors
+* Application metadata
+
+The frontend does **not** communicate directly with PostgreSQL.
+
+The communication flow is:
 
 ```text
-User
+React
   │
   ▼
-React UI
-  │
-  ▼
-Nginx
-  │
-  ▼
-Node.js / Express API
+Node.js / Express
   │
   ▼
 PostgreSQL
-  │
-  ▼
-API Response
-  │
-  ▼
-React UI
 ```
-
-The frontend does not directly communicate with PostgreSQL.
-
-All database operations are handled through the backend API.
 
 ---
 
-# 🗄️ Database Architecture
+# 🗄️ PostgreSQL Data Model
 
-ThoughtCanvas uses **PostgreSQL 16** as the primary relational database.
-
-The database stores application data such as:
-
-* Articles
-* Authors
-* Comments
-* Publication information
-* Application metadata
-
-The application uses a dedicated database connection layer rather than allowing the frontend to access the database directly.
-
-### Example logical relationship
+The logical relationship between the main entities is:
 
 ```text
 Authors
@@ -286,79 +353,92 @@ Comments
 PostgreSQL provides:
 
 * ACID transactions
-* Relational integrity
-* Foreign-key constraints
-* Structured querying
-* Transaction support
-* Better consistency for related entities
+* Referential integrity
+* Foreign keys
+* Relational data modeling
+* Transaction management
+* Persistent storage
 
 ---
 
-# 🔐 Configuration & Environment Variables
+# 🐳 Docker Architecture
 
-Application configuration is externalized through environment variables.
+The application uses separate containers for the frontend and backend.
 
-Example:
+### Frontend Container
 
-```env
-NODE_ENV=production
-PORT=5000
-
-DB_HOST=postgres
-DB_PORT=5432
-DB_NAME=thoughtcanvas
-DB_USER=thoughtcanvas_user
-DB_PASSWORD=<secure-password>
+```text
+React Application
+       │
+       ▼
+Production Build
+       │
+       ▼
+Nginx
+       │
+       ▼
+Port 80
 ```
 
-### Important
+### Backend Container
 
-Sensitive credentials should **never be committed to GitHub**.
+```text
+Node.js
+   │
+   ▼
+Express API
+   │
+   ▼
+Port 5000
+```
 
-For production deployments, secrets should be managed through mechanisms such as:
+### Local Environment
 
-* Kubernetes Secrets
-* Azure Key Vault
-* Jenkins Credentials
-* Azure managed identities where applicable
+```text
+Docker Compose
+      │
+      ├── Frontend Container
+      │
+      ├── Backend Container
+      │
+      └── PostgreSQL Container
+```
 
 ---
 
-# 🐳 Local Development with Docker
+# 🐳 Running Locally with Docker Compose
 
-Docker Compose is used to run the complete application stack locally.
-
-### Start the application
+## Start the Application
 
 ```bash
 docker compose up -d --build
 ```
 
-### Verify running containers
+## Verify Containers
 
 ```bash
 docker compose ps
 ```
 
-### View logs
+## View Logs
 
 ```bash
 docker compose logs -f
 ```
 
-### View backend logs
+## View Backend Logs
 
 ```bash
 docker compose logs -f backend
 ```
 
-### Stop the application
+## Stop the Application
 
 ```bash
 docker compose down
 ```
 
-### Remove containers and volumes
+## Remove Containers and Volumes
 
 ```bash
 docker compose down -v
@@ -378,21 +458,21 @@ http://localhost:5000
 
 ---
 
-# 🩺 Health Check
+# 🩺 Application Health Check
 
-The backend exposes a health endpoint:
+The backend provides a health endpoint:
 
 ```http
 GET /api/health
 ```
 
-Example:
+Local test:
 
 ```bash
 curl http://localhost:5000/api/health
 ```
 
-Expected response:
+Example response:
 
 ```json
 {
@@ -400,14 +480,13 @@ Expected response:
 }
 ```
 
-This endpoint can be used by:
+The health endpoint can be used for:
 
+* Application monitoring
+* Jenkins deployment validation
 * Docker health checks
-* Kubernetes liveness probes
-* Kubernetes readiness probes
-* Load balancers
-* Monitoring systems
-* CI/CD deployment validation
+* Azure App Service health monitoring
+* Operational troubleshooting
 
 ---
 
@@ -415,21 +494,21 @@ This endpoint can be used by:
 
 ## Posts
 
-| Method | Endpoint         | Description            |
-| ------ | ---------------- | ---------------------- |
-| GET    | `/api/posts`     | Get published articles |
-| GET    | `/api/posts/:id` | Get a specific article |
-| POST   | `/api/posts`     | Create an article      |
-| PUT    | `/api/posts/:id` | Update an article      |
-| DELETE | `/api/posts/:id` | Delete an article      |
+| Method | Endpoint         | Description                |
+| ------ | ---------------- | -------------------------- |
+| GET    | `/api/posts`     | Get all published articles |
+| GET    | `/api/posts/:id` | Get a single article       |
+| POST   | `/api/posts`     | Create an article          |
+| PUT    | `/api/posts/:id` | Update an article          |
+| DELETE | `/api/posts/:id` | Delete an article          |
 
 ## Comments
 
-| Method | Endpoint                     | Description    |
-| ------ | ---------------------------- | -------------- |
-| GET    | `/api/comments/post/:postId` | Get comments   |
-| POST   | `/api/posts/:id/comments`    | Add comment    |
-| DELETE | `/api/comments/:id`          | Delete comment |
+| Method | Endpoint                     | Description             |
+| ------ | ---------------------------- | ----------------------- |
+| GET    | `/api/comments/post/:postId` | Get comments for a post |
+| POST   | `/api/posts/:id/comments`    | Add a comment           |
+| DELETE | `/api/comments/:id`          | Delete a comment        |
 
 ## Health
 
@@ -441,9 +520,7 @@ This endpoint can be used by:
 
 # 🔀 Git Branching Strategy
 
-The repository uses separate branches for application development and DevOps implementation.
-
-Example:
+The repository follows a simple branching model.
 
 ```text
 main
@@ -453,98 +530,126 @@ main
  ├── bugfix/*
  │
  └── devops
-       │
-       ├── Docker
-       ├── Jenkins
-       ├── Terraform
-       ├── Kubernetes
-       └── Security
 ```
 
-The `main` branch represents the stable application code.
+### Main
 
-The `devops` branch contains the DevOps/DevSecOps implementation.
+Contains stable application code.
+
+### Feature Branches
+
+Used for new functionality and enhancements.
+
+### Bugfix Branches
+
+Used for defect resolution.
+
+### DevOps Branch
+
+Contains DevOps implementation such as:
+
+* Docker
+* Jenkins
+* Terraform
+* Azure configuration
+* Security scanning
+* Deployment automation
 
 ---
 
-# 🚀 CI/CD Pipeline
+# 🚀 Jenkins CI/CD Pipeline
 
-The Jenkins pipeline automates the application lifecycle.
+Jenkins automates the complete application delivery process.
+
+The pipeline follows:
 
 ```text
-Developer
-    │
-    ▼
-GitHub Commit
-    │
-    ▼
-GitHub Webhook
-    │
-    ▼
+GitHub
+   │
+   ▼
+Webhook
+   │
+   ▼
 Jenkins
-    │
-    ├── Checkout
-    │
-    ├── Install Dependencies
-    │
-    ├── Unit Tests
-    │
-    ├── SonarQube Analysis
-    │
-    ├── Quality Gate
-    │
-    ├── Docker Build
-    │
-    ├── Trivy Image Scan
-    │
-    ├── Docker Push
-    │
-    ▼
-Azure Container Registry
-    │
-    ▼
-AKS Deployment
-    │
-    ├── Kubernetes Manifest / Helm
-    │
-    ├── Rollout Validation
-    │
-    └── Health Verification
-    │
-    ▼
-Production Application
+   │
+   ├── Checkout
+   │
+   ├── Install Dependencies
+   │
+   ├── Unit Tests
+   │
+   ├── SonarQube Analysis
+   │
+   ├── Quality Gate
+   │
+   ├── Docker Build
+   │
+   ├── Trivy Scan
+   │
+   ├── Push Image to ACR
+   │
+   ├── Deploy to Azure App Service
+   │
+   └── Health Check
 ```
 
 ---
 
-# 🔒 DevSecOps Implementation
+# 🔄 CI Pipeline Stages
 
-Security is integrated into the CI/CD lifecycle rather than being performed only after deployment.
+## 1. Source Code Checkout
 
-### Source Code Security
+Jenkins checks out the latest source code from GitHub.
 
-SonarQube is used for:
+---
 
-* Static code analysis
-* Code quality checks
-* Code smells
-* Bugs
-* Vulnerability detection
-* Maintainability analysis
+## 2. Dependency Installation
 
-### Dependency Security
-
-Node.js dependencies are audited as part of the CI process.
-
-Example:
+Node.js dependencies are installed.
 
 ```bash
-npm audit
+npm install
 ```
 
-### Container Security
+---
 
-Trivy scans Docker images for known vulnerabilities.
+## 3. Unit Testing
+
+Automated tests are executed before deployment.
+
+```bash
+npm test
+```
+
+A failed test causes the pipeline to stop.
+
+---
+
+## 4. SonarQube Analysis
+
+SonarQube performs static code analysis.
+
+The analysis can identify:
+
+* Bugs
+* Vulnerabilities
+* Code smells
+* Maintainability issues
+* Code coverage
+
+---
+
+## 5. Quality Gate
+
+Jenkins evaluates the SonarQube Quality Gate.
+
+If the quality gate fails, the pipeline does not proceed to deployment.
+
+---
+
+# 🔒 Container Security with Trivy
+
+Trivy is used to scan Docker images for known vulnerabilities.
 
 Example:
 
@@ -552,13 +657,19 @@ Example:
 trivy image <image-name>:<tag>
 ```
 
-The pipeline can be configured to fail when vulnerabilities exceed the defined severity threshold.
+Trivy can identify vulnerabilities in:
+
+* Operating system packages
+* Application dependencies
+* Container layers
+
+The Jenkins pipeline can be configured to stop the deployment when vulnerabilities exceed the defined severity threshold.
 
 ---
 
-# 📦 Docker Image Strategy
+# 🐳 Docker Image Build
 
-Separate images are maintained for the frontend and backend.
+Jenkins builds separate images for the frontend and backend.
 
 Example:
 
@@ -567,26 +678,151 @@ thoughtcanvas-frontend:<build-number>
 thoughtcanvas-backend:<build-number>
 ```
 
-Images should not rely only on the `latest` tag.
+Images are tagged using unique build or Git identifiers.
 
-Recommended production tagging:
+Example:
 
 ```text
-thoughtcanvas-backend:1.0.15
-thoughtcanvas-backend:git-8f3a21c
 thoughtcanvas-backend:build-125
+```
+
+or:
+
+```text
+thoughtcanvas-backend:git-8f3a21c
 ```
 
 This provides:
 
 * Traceability
-* Rollback capability
 * Version identification
-* Easier debugging
+* Reproducible deployments
+* Easier troubleshooting
+* Rollback capability
 
 ---
 
-# ☁️ Azure Infrastructure
+# 🏪 Azure Container Registry
+
+**Azure Container Registry (ACR)** acts as the private container image repository.
+
+```text
+Azure Container Registry
+        │
+        ├── thoughtcanvas-frontend
+        │
+        └── thoughtcanvas-backend
+```
+
+Jenkins:
+
+1. Builds the Docker image.
+2. Scans the image using Trivy.
+3. Authenticates to ACR.
+4. Pushes the validated image.
+5. Deploys the image to Azure App Service.
+
+---
+
+# ☁️ Azure App Service
+
+The application is hosted using **Azure App Service for Containers**.
+
+The frontend and backend are deployed as separate Web Apps.
+
+```text
+                 App Service Plan
+                       │
+              ┌────────┴────────┐
+              │                 │
+              ▼                 ▼
+       Frontend Web App   Backend Web App
+              │                 │
+              ▼                 ▼
+        React + Nginx      Node.js + Express
+```
+
+The Web Apps retrieve their container images from Azure Container Registry.
+
+---
+
+# 🔄 Deployment Flow
+
+```text
+Developer
+    │
+    ▼
+GitHub
+    │
+    ▼
+Jenkins
+    │
+    ├── Build
+    ├── Test
+    ├── SonarQube
+    ├── Quality Gate
+    ├── Docker Build
+    └── Trivy Scan
+             │
+             ▼
+      Azure Container Registry
+             │
+             ▼
+       Azure App Service
+             │
+             ├── Frontend Web App
+             │
+             └── Backend Web App
+             │
+             ▼
+        Health Validation
+```
+
+---
+
+# 🔁 Deployment Validation
+
+After deployment, Jenkins validates that the application is running successfully.
+
+Example:
+
+```bash
+curl https://<backend-app-name>.azurewebsites.net/api/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "healthy"
+}
+```
+
+A successful response confirms that the backend application is available after deployment.
+
+---
+
+# 🔄 Rollback Strategy
+
+Docker image versioning allows the team to identify and redeploy a previously validated image.
+
+For example:
+
+```text
+Current:
+thoughtcanvas-backend:build-125
+
+Previous:
+thoughtcanvas-backend:build-124
+```
+
+If the latest deployment introduces an issue, the previous validated image can be redeployed.
+
+For more advanced production environments, Azure App Service deployment slots can also be introduced for controlled releases and validation before production traffic is switched.
+
+---
+
+# 🏗️ Infrastructure as Code with Terraform
 
 Terraform is used to provision Azure infrastructure.
 
@@ -594,165 +830,222 @@ Typical resources include:
 
 ```text
 Azure Resource Group
-        │
-        ├── Azure Container Registry
-        │
-        ├── Azure Kubernetes Service
-        │
-        ├── Networking
-        │
-        └── Monitoring Resources
+       │
+       ├── App Service Plan
+       │
+       ├── Frontend Web App
+       │
+       ├── Backend Web App
+       │
+       ├── Azure Container Registry
+       │
+       └── PostgreSQL
 ```
 
-Terraform workflow:
+## Terraform Workflow
+
+Initialize:
 
 ```bash
 terraform init
+```
 
+Validate:
+
+```bash
 terraform validate
+```
 
+Create execution plan:
+
+```bash
 terraform plan
+```
 
+Apply infrastructure:
+
+```bash
 terraform apply
 ```
 
-Destroy development infrastructure when no longer required:
+Destroy development infrastructure when required:
 
 ```bash
 terraform destroy
 ```
 
-Production environments should use appropriate state management, access controls, and approval processes.
+Terraform configuration is maintained in source control to provide versioned and repeatable infrastructure management.
 
 ---
 
-# ☸️ Kubernetes Deployment
+# 🔐 Azure Authentication
 
-The application is deployed to AKS using Kubernetes workloads.
+Jenkins requires secure authentication to Azure.
 
-Typical Kubernetes components include:
+Credentials should be stored in **Jenkins Credentials** rather than inside the Jenkinsfile.
+
+The pipeline may require permissions to:
+
+* Authenticate to Azure
+* Push images to ACR
+* Access Azure resources
+* Update App Service configuration
+* Deploy application containers
+
+Azure permissions should follow the **principle of least privilege**.
+
+---
+
+# 🔐 Configuration & Secrets Management
+
+Application configuration is externalized from the source code.
+
+Example:
+
+```env
+NODE_ENV=production
+PORT=5000
+
+DB_HOST=<database-host>
+DB_PORT=5432
+DB_NAME=thoughtcanvas
+DB_USER=<database-user>
+DB_PASSWORD=<database-password>
+```
+
+Sensitive information must never be committed to GitHub.
+
+Examples of secrets include:
+
+* Database passwords
+* Azure credentials
+* Service principal secrets
+* Registry credentials
+* API keys
+
+Production configuration should be managed using:
+
+* Azure App Service Configuration
+* Jenkins Credentials
+* Azure Key Vault where required
+
+---
+
+# 🛡️ DevSecOps Practices
+
+Security is integrated directly into the CI/CD pipeline.
 
 ```text
-AKS Cluster
-│
-├── Namespace
-│
-├── Frontend Deployment
-│   └── Frontend Pods
-│
-├── Backend Deployment
-│   └── Backend Pods
-│
-├── Backend Service
-│
-├── Frontend Service
-│
-├── ConfigMap
-│
-├── Secrets
-│
-└── Ingress / LoadBalancer
+Source Code
+     │
+     ▼
+Unit Tests
+     │
+     ▼
+SonarQube
+     │
+     ▼
+Quality Gate
+     │
+     ▼
+Docker Build
+     │
+     ▼
+Trivy Scan
+     │
+     ▼
+ACR
+     │
+     ▼
+Azure App Service
 ```
+
+This approach ensures that security and quality checks occur before application deployment.
 
 ---
 
-# 🧪 Deployment Validation
+# 📊 Monitoring & Operations
 
-After deployment, Jenkins validates the Kubernetes rollout.
+Azure App Service provides operational capabilities for monitoring the application.
 
-Example:
+Important operational areas include:
 
-```bash
-kubectl rollout status deployment/frontend
-
-kubectl rollout status deployment/backend
-```
-
-Verify running workloads:
-
-```bash
-kubectl get pods
-
-kubectl get services
-
-kubectl get deployments
-```
-
-Application health can then be validated through the application endpoint.
-
----
-
-# 🔁 Rollback Strategy
-
-Kubernetes provides deployment rollback capabilities.
-
-Example:
-
-```bash
-kubectl rollout history deployment/backend
-```
-
-Rollback:
-
-```bash
-kubectl rollout undo deployment/backend
-```
-
-Using immutable Docker image tags makes rollback safer because a previous known-good image can be redeployed.
-
----
-
-# 📊 Observability & Operations
-
-Production deployments should provide visibility into:
-
-* Application health
-* Pod status
-* CPU utilization
-* Memory utilization
-* Container restarts
-* Deployment status
-* API availability
-* Database connectivity
+* Application availability
 * Application logs
+* Container startup
+* HTTP response status
+* Application errors
+* Resource utilization
+* Deployment status
+* Database connectivity
 
-Useful Kubernetes commands:
-
-```bash
-kubectl get pods
-
-kubectl describe pod <pod-name>
-
-kubectl logs <pod-name>
-
-kubectl get events
-
-kubectl top pods
-```
+The `/api/health` endpoint provides a simple application-level health check.
 
 ---
 
-# 🛡️ Production Security Considerations
+# 🧪 Testing Strategy
 
-The production implementation follows these principles:
+The CI/CD pipeline can perform multiple validation stages.
 
-* Never commit secrets to Git.
-* Use Jenkins Credentials for pipeline secrets.
-* Use Kubernetes Secrets or Azure Key Vault for runtime secrets.
-* Use least-privilege Azure identities.
-* Scan source code before deployment.
-* Scan Docker images before pushing/deploying.
-* Use non-root containers where possible.
-* Use immutable image tags.
-* Restrict Kubernetes RBAC permissions.
-* Keep dependencies and base images updated.
-* Expose only required network endpoints.
+```text
+Unit Tests
+     │
+     ▼
+Code Quality
+     │
+     ▼
+Quality Gate
+     │
+     ▼
+Docker Build
+     │
+     ▼
+Container Security Scan
+     │
+     ▼
+Deployment
+     │
+     ▼
+Application Health Check
+```
+
+This provides automated validation throughout the delivery lifecycle.
+
+---
+
+# 🌍 Environment Strategy
+
+The application can be separated into multiple environments:
+
+```text
+Development
+     │
+     ▼
+Testing
+     │
+     ▼
+Staging
+     │
+     ▼
+Production
+```
+
+Each environment can have different:
+
+* Database configuration
+* Application URLs
+* API URLs
+* Logging levels
+* Resource configurations
+* Secrets
+
+Application configuration is maintained separately from the application source code.
 
 ---
 
 # 📋 Prerequisites
 
-For local development:
+## Local Development
 
 * Git
 * Docker
@@ -760,18 +1053,16 @@ For local development:
 * Node.js 20+
 * npm
 
-For DevOps implementation:
+## DevOps Environment
 
-* GitHub account
+* GitHub
 * Jenkins
 * Docker
 * Azure CLI
 * Terraform
-* kubectl
-* Helm
 * Azure subscription
 * Azure Container Registry
-* Azure Kubernetes Service
+* Azure App Service
 * SonarQube
 * Trivy
 
@@ -779,7 +1070,7 @@ For DevOps implementation:
 
 # 🚀 Quick Start
 
-Clone the repository:
+## Clone the Repository
 
 ```bash
 git clone <repository-url>
@@ -787,25 +1078,25 @@ git clone <repository-url>
 cd ThoughtCanvas
 ```
 
-Start the application:
+## Start the Local Environment
 
 ```bash
 docker compose up -d --build
 ```
 
-Verify containers:
+## Verify Containers
 
 ```bash
 docker compose ps
 ```
 
-Test the backend:
+## Test Backend Health
 
 ```bash
 curl http://localhost:5000/api/health
 ```
 
-Open the application:
+## Open the Application
 
 ```text
 http://localhost
@@ -815,40 +1106,47 @@ http://localhost
 
 # 🧹 Troubleshooting
 
-### Check application logs
+## Check Docker Containers
+
+```bash
+docker ps
+```
+
+## Check Container Logs
+
+```bash
+docker logs <container-name>
+```
+
+## Check Compose Logs
 
 ```bash
 docker compose logs -f
 ```
 
-### Check PostgreSQL
-
-```bash
-docker compose ps
-```
-
-### Restart the application
+## Restart Application
 
 ```bash
 docker compose restart
 ```
 
-### Rebuild containers
+## Rebuild Containers
 
 ```bash
 docker compose up -d --build
 ```
 
-### Remove existing containers
+## Stop Application
 
 ```bash
 docker compose down
 ```
 
-### Complete reset
+## Complete Local Reset
 
 ```bash
 docker compose down -v
+
 docker compose up -d --build
 ```
 
@@ -856,126 +1154,140 @@ docker compose up -d --build
 
 # 📈 Future Enhancements
 
-Potential production enhancements include:
+Potential production improvements include:
 
 * Azure Key Vault integration
-* Managed PostgreSQL using Azure Database for PostgreSQL
-* Horizontal Pod Autoscaling
-* Kubernetes Ingress Controller
-* TLS/HTTPS
-* Prometheus and Grafana
-* Centralized logging
-* Application Performance Monitoring
-* Database backup and disaster recovery
-* Blue/Green or Canary deployments
-* GitOps using Argo CD
-* Automated database migrations
-* Network policies
-* Private AKS cluster
-* Private ACR endpoints
+* Azure Database for PostgreSQL
 * Azure Managed Identity
-* Automated vulnerability remediation
+* Application Insights
+* Azure Monitor
+* HTTPS and custom domain
+* App Service deployment slots
+* Staging environment
+* Production approval gates
+* Automated integration testing
+* Automated database migrations
+* Private networking
+* Web Application Firewall
+* Database backup and disaster recovery
+* Centralized application logging
+* Automated dependency updates
 
 ---
 
-# 🎓 DevOps Learning Outcomes
+# 🎓 DevOps & DevSecOps Skills Demonstrated
 
-This project demonstrates practical experience with:
+## Source Control
 
-### Development
+* Git
+* GitHub
+* Branching strategy
+* Webhooks
 
-* React
-* Node.js
-* Express
-* PostgreSQL
-* REST APIs
+## CI/CD
 
-### Containerization
+* Jenkins
+* Automated builds
+* Automated testing
+* Quality gates
+* Automated deployment
+* Deployment validation
+
+## Containerization
 
 * Docker
 * Docker Compose
+* Dockerfiles
 * Multi-stage builds
-* Container networking
-* Image versioning
+* Container image versioning
 
-### CI/CD
-
-* Jenkins
-* GitHub Webhooks
-* Pipeline automation
-* Build artifacts
-* Automated testing
-* Deployment validation
-
-### DevSecOps
+## Security
 
 * SonarQube
 * Trivy
-* Dependency scanning
-* Container vulnerability scanning
-* Quality gates
+* Static code analysis
+* Vulnerability scanning
+* Secure credentials management
 
-### Infrastructure as Code
+## Infrastructure
 
 * Terraform
-* Azure Resource provisioning
-* Infrastructure lifecycle management
-
-### Kubernetes
-
-* AKS
-* Deployments
-* Services
-* ConfigMaps
-* Secrets
-* Health probes
-* Rollouts
-* Rollbacks
+* Azure Resource Groups
+* Azure App Service
+* Azure App Service Plans
+* Azure Container Registry
+* PostgreSQL
 
 ---
 
 # 🏆 Project Summary
 
-**ThoughtCanvas** demonstrates an end-to-end cloud-native DevSecOps implementation where application development, infrastructure provisioning, security, containerization, continuous integration, and continuous deployment are integrated into a single automated delivery workflow.
+ThoughtCanvas demonstrates an end-to-end **DevOps and DevSecOps implementation** for a containerized full-stack application.
 
-The project follows the principle:
+The solution integrates source control, continuous integration, automated security validation, containerization, image management, infrastructure automation, and cloud deployment into a single delivery workflow.
+
+The overall process is:
 
 ```text
-Code → Build → Test → Scan → Package → Push → Deploy → Validate → Monitor
+CODE
+  ↓
+COMMIT
+  ↓
+GITHUB
+  ↓
+WEBHOOK
+  ↓
+JENKINS
+  ↓
+BUILD
+  ↓
+TEST
+  ↓
+SONARQUBE
+  ↓
+QUALITY GATE
+  ↓
+DOCKER BUILD
+  ↓
+TRIVY SCAN
+  ↓
+AZURE CONTAINER REGISTRY
+  ↓
+AZURE APP SERVICE
+  ↓
+HEALTH CHECK
+  ↓
+APPLICATION
 ```
 
-This architecture provides a foundation for building a scalable, secure, maintainable, and production-ready application delivery platform.
+The architecture uses **Azure App Service for container hosting**, providing a managed application hosting platform without requiring a container orchestration platform.
+
+This allows the project to demonstrate practical enterprise DevOps capabilities while keeping the deployment architecture focused, maintainable, and cost-effective.
 
 ---
 
-## 👨‍💻 Project
+# 👨‍💻 Project Information
 
-**ThoughtCanvas**
-
-**Architecture:** 3-Tier Cloud-Native Application
-
-**Frontend:** React + Nginx
-
-**Backend:** Node.js + Express
-
-**Database:** PostgreSQL
-
-**CI/CD:** Jenkins
-
-**Cloud:** Microsoft Azure
-
-**Container Registry:** Azure Container Registry
-
-**Orchestration:** Azure Kubernetes Service
-
-**IaC:** Terraform
-
-**Security:** SonarQube + Trivy
-
-**Containerization:** Docker
+| Component              | Technology               |
+| ---------------------- | ------------------------ |
+| Project                | ThoughtCanvas            |
+| Architecture           | 3-Tier                   |
+| Frontend               | React + Nginx            |
+| Backend                | Node.js + Express        |
+| Database               | PostgreSQL               |
+| Containerization       | Docker                   |
+| Local Environment      | Docker Compose           |
+| Source Control         | GitHub                   |
+| CI/CD                  | Jenkins                  |
+| Code Quality           | SonarQube                |
+| Security               | Trivy                    |
+| Container Registry     | Azure Container Registry |
+| Application Hosting    | Azure App Service        |
+| Infrastructure as Code | Terraform                |
+| Cloud                  | Microsoft Azure          |
 
 ---
 
-> **Built to demonstrate real-world DevOps and DevSecOps engineering practices.**
+> **Build → Test → Secure → Package → Deploy → Validate**
 
-**Innovate. Automate. Secure. Deploy. 🚀**
+> ThoughtCanvas demonstrates real-world DevOps and DevSecOps practices using Docker, Jenkins, Terraform, Azure Container Registry, Azure App Service, SonarQube, Trivy, and PostgreSQL.
