@@ -53,7 +53,7 @@ The complete CI/CD workflow is automated using **Jenkins**, while Azure infrastr
 
 # 🎯 Project Objectives
 
-The objective of Project 5 is to implement a production-style DevOps and DevSecOps workflow for a containerized full-stack application.
+The objective of Project is to implement a production-style DevOps and DevSecOps workflow for a containerized full-stack application.
 
 The project demonstrates:
 
