@@ -46,19 +46,18 @@ pipeline {
 
         stage('5. Build Docker Image') {
             steps {
-                script {
-                    app = docker.build("${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG}", "-f backend/Dockerfile backend/")
-                }
+                sh "docker build -t ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} -t ${env.REGISTRY}/${env.IMAGE_NAME}:latest -f backend/Dockerfile backend/"
             }
         }
 
         stage('6. Push Image to ACR') {
             steps {
-                script {
-                    docker.withRegistry("https://${env.REGISTRY}", "${env.ACR_CREDENTIALS_ID}") {
-                        app.push("${env.TAG}")
-                        app.push("latest")
-                    }
+                withCredentials([usernamePassword(credentialsId: "${env.ACR_CREDENTIALS_ID}", passwordVariable: 'ACR_PASSWORD', usernameVariable: 'ACR_USER')]) {
+                    sh """
+                        echo \$ACR_PASSWORD | docker login ${env.REGISTRY} -u \$ACR_USER --password-stdin
+                        docker push ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG}
+                        docker push ${env.REGISTRY}/${env.IMAGE_NAME}:latest
+                    """
                 }
             }
         }
