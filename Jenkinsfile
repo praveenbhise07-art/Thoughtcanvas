@@ -67,7 +67,10 @@ pipeline {
 
         stage('7. CD: Azure Login & Configure Settings') {
             steps {
-                withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
+                withCredentials([
+                    azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}"),
+                    usernamePassword(credentialsId: "${env.ACR_CREDENTIALS_ID}", passwordVariable: 'ACR_PASSWORD', usernameVariable: 'ACR_USER')
+                ]) {
                     sh """
                         az login --service-principal -u \$AZURE_CLIENT_ID -p \$AZURE_CLIENT_SECRET --tenant \$AZURE_TENANT_ID
                         
@@ -77,7 +80,16 @@ pipeline {
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
                             --slot ${env.STAGING_SLOT}
                         
-                        echo "Configuring Key Vault and Port environment variables..."
+                        echo "Configuring container credentials and app settings..."
+                        az webapp config container set \
+                            --name ${env.APP_SERVICE_NAME} \
+                            --resource-group ${env.AZURE_RESOURCE_GROUP} \
+                            --slot ${env.STAGING_SLOT} \
+                            --docker-custom-image-name ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} \
+                            --docker-registry-server-url https://${env.REGISTRY} \
+                            --docker-registry-server-user "\$ACR_USER" \
+                            --docker-registry-server-password "\$ACR_PASSWORD"
+
                         az webapp config appsettings set \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
@@ -94,15 +106,7 @@ pipeline {
             steps {
                 withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
                     sh """
-                        echo "Deploying custom container image to Green Slot..."
-                        az webapp config container set \
-                            --name ${env.APP_SERVICE_NAME} \
-                            --resource-group ${env.AZURE_RESOURCE_GROUP} \
-                            --slot ${env.STAGING_SLOT} \
-                            --docker-custom-image-name ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} \
-                            --docker-registry-server-url https://${env.REGISTRY}
-                        
-                        echo "Restarting Staging Slot..."
+                        echo "Restarting Staging Slot to apply new image and configuration..."
                         az webapp restart \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
