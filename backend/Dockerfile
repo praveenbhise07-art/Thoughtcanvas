@@ -11,10 +11,12 @@ RUN npm install --omit=dev && npm cache clean --force
 # Copy application source code
 COPY src/ ./src/
 
-# Create non-root user for security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-RUN chown -R appuser:appgroup /app
+# Create non-root user and set ownership securely in one layer
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup && \
+    chown -R appuser:appgroup /app
 
+# Switch to non-root user
 USER appuser
 
 EXPOSE 5000
