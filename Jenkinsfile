@@ -79,18 +79,19 @@ pipeline {
                         az webapp identity assign \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
-                            --slot ${env.STAGING_SLOT} || echo "Managed identity already assigned or slot is busy, continuing..."
+                            --slot ${env.STAGING_SLOT} || true
                         
-                        echo "Configuring container credentials and app settings..."
+                        echo "Configuring container settings with modern syntax..."
                         az webapp config container set \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
                             --slot ${env.STAGING_SLOT} \
-                            --docker-custom-image-name ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} \
-                            --docker-registry-server-url https://${env.REGISTRY} \
-                            --docker-registry-server-user "\$ACR_USER" \
-                            --docker-registry-server-password "\$ACR_PASSWORD"
+                            --container-image-name ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} \
+                            --container-registry-url https://${env.REGISTRY} \
+                            --container-registry-user "\$ACR_USER" \
+                            --container-registry-password "\$ACR_PASSWORD"
 
+                        echo "Configuring app settings..."
                         az webapp config appsettings set \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
@@ -104,7 +105,6 @@ pipeline {
                 }
             }
         }
-
         stage('8. CD: Deploy to Staging Slot (Green)') {
             steps {
                 withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
