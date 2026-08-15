@@ -1,7 +1,11 @@
 const { Pool } = require('pg');
 
+// Construct connection string if DB_CONNECTION_STRING is missing but individual components exist
+const connectionString = process.env.DB_CONNECTION_STRING || 
+  `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME}?sslmode=require`;
+
 const pool = new Pool({
-  connectionString: process.env.DB_CONNECTION_STRING,
+  connectionString: connectionString,
   ssl: {
     rejectUnauthorized: false // Required for Azure PostgreSQL Flexible Server
   }
