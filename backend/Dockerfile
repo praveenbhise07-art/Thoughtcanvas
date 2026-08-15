@@ -7,15 +7,14 @@ RUN npm install --omit=dev && npm cache clean --force
 # ---- Production stage ----
 FROM node:20-alpine AS production
 
-# Security: run as non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-# Security: remove unnecessary packages
-RUN apk --no-cache add dumb-init
+# Security: install dumb-init and create non-root user safely in one layer
+RUN apk --no-cache add dumb-init && \
+    addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
 
 WORKDIR /app
 
-# Copy only production dependencies from build stage
+# Copy only production dependencies and source files
 COPY --from=build /app/node_modules ./node_modules
 COPY src/ ./src/
 
