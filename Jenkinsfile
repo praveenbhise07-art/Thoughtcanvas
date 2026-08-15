@@ -44,9 +44,9 @@ pipeline {
             }
         }
 
-        stage('5. Build Docker Image') {
+       stage('5. Build Docker Image') {
             steps {
-                sh 'DOCKER_BUILDKIT=0 docker build --no-cache -t ${REGISTRY}/${IMAGE_NAME}:${TAG} -t ${REGISTRY}/${IMAGE_NAME}:latest -f backend/Dockerfile backend/'
+                sh 'docker build --no-cache -t ${REGISTRY}/${IMAGE_NAME}:${TAG} -t ${REGISTRY}/${IMAGE_NAME}:latest -f backend/Dockerfile backend/'
             }
         }
 
