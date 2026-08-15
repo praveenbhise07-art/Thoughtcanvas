@@ -66,45 +66,52 @@ pipeline {
             }
         }
 
-     stage('7. CD: Azure Login & Configure Settings') {
+    stage('7. CD: Azure Login & Configure Settings') {
             steps {
                 withCredentials([
                     azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}"),
                     usernamePassword(credentialsId: "${env.ACR_CREDENTIALS_ID}", passwordVariable: 'ACR_PASSWORD', usernameVariable: 'ACR_USER')
                 ]) {
-                    sh """
-                        az login --service-principal -u \$AZURE_CLIENT_ID -p \$AZURE_CLIENT_SECRET --tenant \$AZURE_TENANT_ID
-                        
-                        echo "Fetching database connection string from Key Vault..."
-                        DB_CONN_VAL=\$(az keyvault secret show --name "postgres-connection-string" --vault-name "${env.KEYVAULT_NAME}" --query "value" -o tsv)
+                    script {
+                        // Fetch the connection string safely inside Groovy execution context
+                        def dbConnVal = sh(
+                            script: "az keyvault secret show --name 'postgres-connection-string' --vault-name '${env.KEYVAULT_NAME}' --query 'value' -o tsv",
+                            returnStdout: true
+                        ).trim()
 
-                        echo "Ensuring Managed Identity on Staging Slot..."
-                        az webapp identity assign \
-                            --name ${env.APP_SERVICE_NAME} \
-                            --resource-group ${env.AZURE_RESOURCE_GROUP} \
-                            --slot ${env.STAGING_SLOT} || true
-                        
-                        echo "Configuring container settings..."
-                        az webapp config container set \
-                            --name ${env.APP_SERVICE_NAME} \
-                            --resource-group ${env.AZURE_RESOURCE_GROUP} \
-                            --slot ${env.STAGING_SLOT} \
-                            --container-image-name ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} \
-                            --container-registry-url https://${env.REGISTRY} \
-                            --container-registry-user "\$ACR_USER" \
-                            --container-registry-password "\$ACR_PASSWORD"
+                        // Run the az CLI command using the Groovy variable directly, 
+                        // completely avoiding shell semicolon injection issues
+                        sh """
+                            az login --service-principal -u \$AZURE_CLIENT_ID -p \$AZURE_CLIENT_SECRET --tenant \$AZURE_TENANT_ID
+                            
+                            echo "Ensuring Managed Identity on Staging Slot..."
+                            az webapp identity assign \
+                                --name ${env.APP_SERVICE_NAME} \
+                                --resource-group ${env.AZURE_RESOURCE_GROUP} \
+                                --slot ${env.STAGING_SLOT} || true
+                            
+                            echo "Configuring container settings..."
+                            az webapp config container set \
+                                --name ${env.APP_SERVICE_NAME} \
+                                --resource-group ${env.AZURE_RESOURCE_GROUP} \
+                                --slot ${env.STAGING_SLOT} \
+                                --container-image-name ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} \
+                                --container-registry-url https://${env.REGISTRY} \
+                                --container-registry-user "\$ACR_USER" \
+                                --container-registry-password "\$ACR_PASSWORD"
 
-                        echo "Configuring app settings..."
-                        az webapp config appsettings set \
-                            --name ${env.APP_SERVICE_NAME} \
-                            --resource-group ${env.AZURE_RESOURCE_GROUP} \
-                            --slot ${env.STAGING_SLOT} \
-                            --settings KEYVAULT_NAME="${env.KEYVAULT_NAME}" \
-                                       NODE_ENV="production" \
-                                       PORT="5000" \
-                                       WEBSITES_PORT="5000" \
-                                       DB_CONNECTION_STRING="\$DB_CONN_VAL"
-                    """
+                            echo "Configuring app settings..."
+                            az webapp config appsettings set \
+                                --name ${env.APP_SERVICE_NAME} \
+                                --resource-group ${env.AZURE_RESOURCE_GROUP} \
+                                --slot ${env.STAGING_SLOT} \
+                                --settings KEYVAULT_NAME="${env.KEYVAULT_NAME}" \
+                                           NODE_ENV="production" \
+                                           PORT="5000" \
+                                           WEBSITES_PORT="5000" \
+                                           DB_CONNECTION_STRING="${dbConnVal}"
+                        """
+                    }
                 }
             }
         }
