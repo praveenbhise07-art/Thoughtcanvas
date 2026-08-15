@@ -29,7 +29,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 
-// Function to load secrets from Azure Key Vault if configured
+// Function to load the single connection string from Azure Key Vault if configured
 async function loadSecretsFromKeyVault() {
   if (process.env.KEY_VAULT_NAME) {
     console.log("🔒 Connecting to Azure Key Vault...");
@@ -39,12 +39,11 @@ async function loadSecretsFromKeyVault() {
       const url = `https://${vaultName}.vault.azure.net`;
       const client = new SecretClient(url, credential);
 
-      // Fetch secrets and map them to process.env for the database module
-      process.env.DB_USER = (await client.getSecret("DB-USER")).value;
-      process.env.DB_PASSWORD = (await client.getSecret("DB-PASSWORD")).value;
-      process.env.DB_HOST = (await client.getSecret("DB-HOST")).value;
+      // Fetch the single connection string secret you created in Key Vault
+      const secret = await client.getSecret("postgres-connection-string");
+      process.env.DB_CONNECTION_STRING = secret.value;
       
-      console.log("✅ Secrets loaded successfully from Azure Key Vault.");
+      console.log("✅ Connection string loaded successfully from Azure Key Vault.");
     } catch (err) {
       console.error("❌ Failed to load secrets from Azure Key Vault:", err);
       process.exit(1);
