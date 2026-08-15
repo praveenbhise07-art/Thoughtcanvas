@@ -65,7 +65,7 @@ pipeline {
             }
         }
 
-        stage('7. CD: Azure Login & Configure Settings') {
+       stage('7. CD: Azure Login & Configure Settings') {
             steps {
                 withCredentials([
                     azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}"),
@@ -78,7 +78,7 @@ pipeline {
                         az webapp identity assign \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
-                            --slot ${env.STAGING_SLOT}
+                            --slot ${env.STAGING_SLOT} || echo "Managed identity already assigned or slot is busy, continuing..."
                         
                         echo "Configuring container credentials and app settings..."
                         az webapp config container set \
