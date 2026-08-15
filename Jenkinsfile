@@ -91,8 +91,8 @@ pipeline {
                                 --container-registry-user "\$ACR_USER" \
                                 --container-registry-password "\$ACR_PASSWORD"
 
-                            echo "Configuring app settings..."
-                            az webapp config appsettings set \
+                           echo "Configuring app settings..."
+                            DB_CONN="${dbConnVal}" az webapp config appsettings set \
                                 --name ${env.APP_SERVICE_NAME} \
                                 --resource-group ${env.AZURE_RESOURCE_GROUP} \
                                 --slot ${env.STAGING_SLOT} \
@@ -100,7 +100,7 @@ pipeline {
                                            NODE_ENV="production" \
                                            PORT="5000" \
                                            WEBSITES_PORT="5000" \
-                                           DB_CONNECTION_STRING="${dbConnVal}"
+                                           DB_CONNECTION_STRING="\$DB_CONN"
                         """
                     }
                 }
