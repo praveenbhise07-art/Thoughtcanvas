@@ -44,9 +44,13 @@ pipeline {
             }
         }
 
-        stage('5. Build Docker Image') {
+       stage('5. Build Docker Image') {
             steps {
-                sh "docker build -t ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} -t ${env.REGISTRY}/${env.IMAGE_NAME}:latest -f backend/Dockerfile backend/"
+                sh """
+                    echo "Cleaning up Docker build cache to prevent snapshot corruption..."
+                    docker builder prune -f
+                    docker build --no-cache -t ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} -t ${env.REGISTRY}/${env.IMAGE_NAME}:latest -f backend/Dockerfile backend/
+                """
             }
         }
 
