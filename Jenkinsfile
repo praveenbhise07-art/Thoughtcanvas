@@ -46,11 +46,7 @@ pipeline {
 
         stage('5. Build Docker Image') {
             steps {
-                sh """
-                    echo "Disabling BuildKit to bypass snapshot corruption..."
-                    export DOCKER_BUILDKIT=0
-                    docker build --no-cache -t ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} -t ${env.REGISTRY}/${env.IMAGE_NAME}:latest -f backend/Dockerfile backend/
-                """
+                sh 'DOCKER_BUILDKIT=0 docker build --no-cache -t ${REGISTRY}/${IMAGE_NAME}:${TAG} -t ${REGISTRY}/${IMAGE_NAME}:latest -f backend/Dockerfile backend/'
             }
         }
 
