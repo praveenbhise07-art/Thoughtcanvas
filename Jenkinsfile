@@ -9,8 +9,8 @@ pipeline {
         APP_SERVICE_NAME = "app-thoughtcanvas-dev"
         STAGING_SLOT = "green"
         KEYVAULT_NAME = "kv-thoughtcanvas-dev"
-        ACR_CREDENTIALS_ID = "azure-acr-credentials"
-        AZURE_CREDENTIALS_ID = "azure-service-principal"
+        ACR_CREDENTIALS_ID = "acr-credentials"
+        AZURE_CREDENTIALS_ID = "azure-sp-credentials"
     }
 
     stages {
@@ -44,19 +44,17 @@ pipeline {
             }
         }
 
-       stage('5. Build Docker Image') {
+        stage('5. Build Docker Image') {
             steps {
                 sh """
-                    echo "Disabling BuildKit to bypass snapshot corruption..."
-                    export DOCKER_BUILDKIT=0
-                    docker build --no-cache -t ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} -t ${env.REGISTRY}/${env.IMAGE_NAME}:latest -f backend/Dockerfile backend/
+                    docker build -t ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} -t ${env.REGISTRY}/${env.IMAGE_NAME}:latest -f backend/Dockerfile backend/
                 """
             }
         }
 
         stage('6. Push Image to ACR') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'acr-credentials-id', passwordVariable: 'ACR_PASSWORD', usernameVariable: 'ACR_USER')]) {
+                withCredentials([usernamePassword(credentialsId: "${env.ACR_CREDENTIALS_ID}", passwordVariable: 'ACR_PASSWORD', usernameVariable: 'ACR_USER')]) {
                     sh """
                         echo "Logging into Azure Container Registry..."
                         echo "${ACR_PASSWORD}" | docker login ${env.REGISTRY} -u "${ACR_USER}" --password-stdin
