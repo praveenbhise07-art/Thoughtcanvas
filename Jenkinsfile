@@ -73,14 +73,11 @@ pipeline {
                     usernamePassword(credentialsId: "${env.ACR_CREDENTIALS_ID}", passwordVariable: 'ACR_PASSWORD', usernameVariable: 'ACR_USER')
                 ]) {
                     script {
-                        // Fetch the connection string safely inside Groovy execution context
                         def dbConnVal = sh(
                             script: "az keyvault secret show --name 'postgres-connection-string' --vault-name '${env.KEYVAULT_NAME}' --query 'value' -o tsv",
                             returnStdout: true
                         ).trim()
 
-                        // Run the az CLI command using the Groovy variable directly, 
-                        // completely avoiding shell semicolon injection issues
                         sh """
                             az login --service-principal -u \$AZURE_CLIENT_ID -p \$AZURE_CLIENT_SECRET --tenant \$AZURE_TENANT_ID
                             
@@ -89,6 +86,13 @@ pipeline {
                                 --name ${env.APP_SERVICE_NAME} \
                                 --resource-group ${env.AZURE_RESOURCE_GROUP} \
                                 --slot ${env.STAGING_SLOT} || true
+
+                            echo "Ensuring App Service is configured for Linux Containers..."
+                            az webapp config set \
+                                --name ${env.APP_SERVICE_NAME} \
+                                --resource-group ${env.AZURE_RESOURCE_GROUP} \
+                                --slot ${env.STAGING_SLOT} \
+                                --linux-fx-version "DOCKER|${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG}" || true
                             
                             echo "Configuring container settings..."
                             az webapp config container set \
