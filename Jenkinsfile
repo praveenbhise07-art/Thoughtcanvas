@@ -66,7 +66,7 @@ pipeline {
             }
         }
 
-       stage('7. CD: Azure Login & Configure Settings') {
+      stage('7. CD: Azure Login & Configure Settings') {
             steps {
                 withCredentials([
                     azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}"),
@@ -75,13 +75,16 @@ pipeline {
                     sh """
                         az login --service-principal -u \$AZURE_CLIENT_ID -p \$AZURE_CLIENT_SECRET --tenant \$AZURE_TENANT_ID
                         
+                        echo "Fetching database connection string from Key Vault..."
+                        DB_CONN_VAL=\$(az keyvault secret show --name "postgres-connection-string" --vault-name "${env.KEYVAULT_NAME}" --query "value" -o tsv)
+
                         echo "Ensuring Managed Identity on Staging Slot..."
                         az webapp identity assign \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
                             --slot ${env.STAGING_SLOT} || true
                         
-                        echo "Configuring container settings with modern syntax..."
+                        echo "Configuring container settings..."
                         az webapp config container set \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
@@ -91,7 +94,7 @@ pipeline {
                             --container-registry-user "\$ACR_USER" \
                             --container-registry-password "\$ACR_PASSWORD"
 
-                        echo "Configuring app settings and Key Vault references..."
+                        echo "Configuring app settings..."
                         az webapp config appsettings set \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
@@ -100,7 +103,7 @@ pipeline {
                                        NODE_ENV="production" \
                                        PORT="5000" \
                                        WEBSITES_PORT="5000" \
-                                       DB_CONNECTION_STRING="@Microsoft.KeyVault(VaultName=${env.KEYVAULT_NAME};SecretName=postgres-connection-string)"
+                                       DB_CONNECTION_STRING="\$DB_CONN_VAL"
                     """
                 }
             }
