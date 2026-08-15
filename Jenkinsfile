@@ -44,7 +44,7 @@ pipeline {
             }
         }
 
-      stage('5. Build Docker Image') {
+        stage('5. Build Docker Image') {
             steps {
                 sh 'docker builder prune -f'
                 sh 'docker build --no-cache -t ${REGISTRY}/${IMAGE_NAME}:${TAG} -t ${REGISTRY}/${IMAGE_NAME}:latest -f backend/Dockerfile backend/'
@@ -66,7 +66,7 @@ pipeline {
             }
         }
 
-       stage('7. CD: Azure Login & Configure Settings') {
+        stage('7. CD: Azure Login & Configure Settings') {
             steps {
                 withCredentials([
                     azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}"),
@@ -98,11 +98,13 @@ pipeline {
                             --settings KEYVAULT_NAME="${env.KEYVAULT_NAME}" \
                                        NODE_ENV="production" \
                                        PORT="5000" \
-                                       WEBSITES_PORT="5000"
+                                       WEBSITES_PORT="5000" \
+                                       DB_CONNECTION_STRING="postgresql://<username>:<password>@psql-thoughtcanvas-dev.postgres.database.azure.com:5432/<dbname>?sslmode=require"
                     """
                 }
             }
         }
+
         stage('8. CD: Deploy to Staging Slot (Green)') {
             steps {
                 withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
