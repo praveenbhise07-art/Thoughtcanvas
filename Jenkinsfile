@@ -103,7 +103,7 @@ pipeline {
                                        NODE_ENV="production" \
                                        PORT="5000" \
                                        WEBSITES_PORT="5000" \
-                                       DB_CONNECTION_STRING="$DB_CONN_VAL"
+                                       DB_CONNECTION_STRING="\$DB_CONN_VAL"
                     """
                 }
             }
