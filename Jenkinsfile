@@ -99,16 +99,18 @@ pipeline {
                                 --container-registry-password "\$ACR_PASSWORD"
 
                             echo "Configuring app settings..."
-                            DB_CONN="${dbConnVal}" az webapp config appsettings set \
-                                --name ${env.APP_SERVICE_NAME} \
-                                --resource-group ${env.AZURE_RESOURCE_GROUP} \
-                                --slot ${env.STAGING_SLOT} \
-                                --settings KEYVAULT_NAME="${env.KEYVAULT_NAME}" \
-                                           NODE_ENV="production" \
-                                           PORT="5000" \
-                                           WEBSITES_PORT="5000" \
-                                           DB_CONNECTION_STRING="\$DB_CONN"
-                        """
+                            sh '''
+                                az webapp config appsettings set \
+                                    --name ''' + env.APP_SERVICE_NAME + ''' \
+                                    --resource-group ''' + env.AZURE_RESOURCE_GROUP + ''' \
+                                    --slot ''' + env.STAGING_SLOT + ''' \
+                                    --settings KEYVAULT_NAME="''' + env.KEYVAULT_NAME + '''" \
+                                               NODE_ENV="production" \
+                                               PORT="5000" \
+                                               WEBSITES_PORT="5000" \
+                                               DB_CONNECTION_STRING="''' + dbConnVal + '''"
+                            '''
+                       
                     }
                 }
             }
