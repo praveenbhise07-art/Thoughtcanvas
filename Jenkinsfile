@@ -56,13 +56,14 @@ pipeline {
 
         stage('6. Push Image to ACR') {
             steps {
-                withCredentials([usernamePassword(credentialsId: "${env.ACR_CREDENTIALS_ID}", passwordVariable: 'ACR_PASSWORD', usernameVariable: 'ACR_USER')]) {
-                    sh """
-                        echo \$ACR_PASSWORD | docker login ${env.REGISTRY} -u \$ACR_USER --password-stdin
-                        docker push ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG}
-                        docker push ${env.REGISTRY}/${env.IMAGE_NAME}:latest
-                    """
-                }
+                sh """
+                    echo "Logging into Azure Container Registry..."
+                    echo \$ACR_PASSWORD | docker login ${env.REGISTRY} -u \$ACR_USER --password-stdin
+                    
+                    echo "Pushing Docker images..."
+                    docker push ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG}
+                    docker push ${env.REGISTRY}/${env.IMAGE_NAME}:latest
+                """
             }
         }
 
