@@ -66,7 +66,7 @@ pipeline {
             }
         }
 
-        stage('7. CD: Azure Login & Configure Settings') {
+       stage('7. CD: Azure Login & Configure Settings') {
             steps {
                 withCredentials([
                     azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}"),
@@ -91,7 +91,7 @@ pipeline {
                             --container-registry-user "\$ACR_USER" \
                             --container-registry-password "\$ACR_PASSWORD"
 
-                        echo "Configuring app settings..."
+                        echo "Configuring app settings and Key Vault references..."
                         az webapp config appsettings set \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
@@ -100,7 +100,7 @@ pipeline {
                                        NODE_ENV="production" \
                                        PORT="5000" \
                                        WEBSITES_PORT="5000" \
-                                       DB_CONNECTION_STRING="postgresql://<username>:<password>@psql-thoughtcanvas-dev.postgres.database.azure.com:5432/<dbname>?sslmode=require"
+                                       DB_CONNECTION_STRING="@Microsoft.KeyVault(VaultName=${env.KEYVAULT_NAME};SecretName=postgres-connection-string)"
                     """
                 }
             }
