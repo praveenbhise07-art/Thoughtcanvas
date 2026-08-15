@@ -65,8 +65,7 @@ pipeline {
                 }
             }
         }
-
-   stage('7. CD: Azure Login & Configure Settings') {
+        stage('7. CD: Azure Login & Configure Settings') {
             steps {
                 withCredentials([
                     azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}"),
@@ -114,6 +113,7 @@ pipeline {
                 }
             }
         }
+   
         stage('8. CD: Deploy to Staging Slot (Green)') {
             steps {
                 withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
