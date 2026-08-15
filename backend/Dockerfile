@@ -7,9 +7,11 @@ RUN npm install --omit=dev && npm cache clean --force
 # ---- Production stage ----
 FROM node:20-alpine AS production
 
-# Security: create non-root user cleanly
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-RUN apk --no-cache add dumb-init
+# Install dumb-init and create non-root user in a single RUN command to prevent shim task failure
+RUN apk update && \
+    apk add --no-cache dumb-init && \
+    addgroup -S appgroup && \
+    adduser -S appuser -G appgroup
 
 WORKDIR /app
 
