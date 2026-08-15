@@ -81,19 +81,19 @@ pipeline {
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
                             --slot ${env.STAGING_SLOT}
                         
-                        echo "Configuring Key Vault environment variables..."
+                        echo "Configuring Key Vault and Port environment variables..."
                         az webapp config appsettings set \
                             --name ${env.APP_SERVICE_NAME} \
                             --resource-group ${env.AZURE_RESOURCE_GROUP} \
                             --slot ${env.STAGING_SLOT} \
                             --settings KEYVAULT_NAME="${env.KEYVAULT_NAME}" \
                                        NODE_ENV="production" \
-                                       PORT="5000"
+                                       PORT="5000" \
+                                       WEBSITES_PORT="5000"
                     """
                 }
             }
         }
-
         stage('8. CD: Deploy to Staging Slot (Green)') {
             steps {
                 withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
