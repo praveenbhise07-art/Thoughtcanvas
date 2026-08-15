@@ -81,6 +81,13 @@ pipeline {
                         sh """
                             az login --service-principal -u \$AZURE_CLIENT_ID -p \$AZURE_CLIENT_SECRET --tenant \$AZURE_TENANT_ID
                             
+                            echo "Resetting runtime framework to Docker..."
+                            az webapp config set \
+                                --name ${env.APP_SERVICE_NAME} \
+                                --resource-group ${env.AZURE_RESOURCE_GROUP} \
+                                --slot ${env.STAGING_SLOT} \
+                                --linux-fx-version "DOCKER|${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG}" || true
+
                             echo "Configuring container settings for staging slot..."
                             az webapp config container set \
                                 --name ${env.APP_SERVICE_NAME} \
@@ -91,7 +98,7 @@ pipeline {
                                 --container-registry-user "\$ACR_USER" \
                                 --container-registry-password "\$ACR_PASSWORD"
 
-                           echo "Configuring app settings..."
+                            echo "Configuring app settings..."
                             DB_CONN="${dbConnVal}" az webapp config appsettings set \
                                 --name ${env.APP_SERVICE_NAME} \
                                 --resource-group ${env.AZURE_RESOURCE_GROUP} \
