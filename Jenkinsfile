@@ -86,10 +86,10 @@ pipeline {
                                 --name ${env.APP_SERVICE_NAME} \
                                 --resource-group ${env.AZURE_RESOURCE_GROUP} \
                                 --slot ${env.STAGING_SLOT} \
-                                --docker-custom-image-name ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} \
-                                --docker-registry-server-url https://${env.REGISTRY} \
-                                --docker-registry-server-user "\$ACR_USER" \
-                                --docker-registry-server-password "\$ACR_PASSWORD"
+                                --container-image-name ${env.REGISTRY}/${env.IMAGE_NAME}:${env.TAG} \
+                                --container-registry-url https://${env.REGISTRY} \
+                                --container-registry-user "\$ACR_USER" \
+                                --container-registry-password "\$ACR_PASSWORD"
 
                             echo "Configuring app settings..."
                             az webapp config appsettings set \
