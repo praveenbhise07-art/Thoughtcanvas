@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 
 // Construct connection string if DB_CONNECTION_STRING is missing but individual components exist
-const connectionString = 'postgresql://psqladmin:Password123!@://psql-thoughtcanvas-dev.postgres.database.azure.com';
+const connectionString = 'postgresql://psqladmin:Password123!@psql-thoughtcanvas-dev.postgres.database.azure.com/thoughtcanvas';
 
 const pool = new Pool({
   connectionString: connectionString,
