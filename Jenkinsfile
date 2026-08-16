@@ -68,7 +68,7 @@ pipeline {
                 }
             }
         }
-        stage('7. CD: Azure Login & Configure Settings') {
+               stage('7. CD: Azure Login & Configure Settings') {
             steps {
                 withCredentials([
                     azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}"),
@@ -100,7 +100,7 @@ pipeline {
                                 --container-registry-user "\$ACR_USER" \
                                 --container-registry-password "\$ACR_PASSWORD"
 
-                           echo "Configuring app settings..."
+                            echo "Configuring app settings..."
                             az webapp config appsettings set \
                                 --name ${env.APP_SERVICE_NAME} \
                                 --resource-group ${env.AZURE_RESOURCE_GROUP} \
@@ -114,6 +114,48 @@ pipeline {
                     }
                 }
             }
+        }
+   
+        stage('8. CD: Deploy to Staging Slot (Green)') {
+            steps {
+                withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
+                    sh """
+                        echo "Restarting Staging Slot to apply new image and configuration..."
+                        az webapp restart \
+                            --name ${env.APP_SERVICE_NAME} \
+                            --resource-group ${env.AZURE_RESOURCE_GROUP} \
+                            --slot ${env.STAGING_SLOT}
+                    """
+                }
+            }
+        }
+
+        stage('9. CD: Blue/Green Slot Swap') {
+            steps {
+                input message: "Promote deployment from Green slot to Production?", ok: "Swap Slots"
+                withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
+                    sh """
+                        echo "Swapping Green slot into Production..."
+                        az webapp deployment slot swap \
+                            --name ${env.APP_SERVICE_NAME} \
+                            --resource-group ${env.AZURE_RESOURCE_GROUP} \
+                            --slot ${env.STAGING_SLOT} \
+                            --target-slot production
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline executed successfully! Production environment updated."
+        }
+        failure {
+            echo "Pipeline failed. Review console logs."
+        }
+    }
+}
 
         stage('8. CD: Deploy to Staging Slot (Green)') {
             steps {
