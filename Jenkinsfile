@@ -45,14 +45,13 @@ pipeline {
         }
 
         stage('5. Build Docker Image') {
-    steps {
-        script {
-            // Build from the project root (.) using the root Dockerfile
-            sh "docker builder prune -f"
-            sh "docker build --no-cache -t ${REGISTRY}/${IMAGE_NAME}:${TAG} -t ${REGISTRY}/${IMAGE_NAME}:latest -f Dockerfile ."
+            steps {
+                script {
+                    sh "docker builder prune -f"
+                    sh "docker build --no-cache -t ${REGISTRY}/${IMAGE_NAME}:${TAG} -t ${REGISTRY}/${IMAGE_NAME}:latest -f Dockerfile ."
+                }
+            }
         }
-    }
-}
 
         stage('6. Push Image to ACR') {
             steps {
@@ -68,7 +67,8 @@ pipeline {
                 }
             }
         }
-               stage('7. CD: Azure Login & Configure Settings') {
+
+        stage('7. CD: Azure Login & Configure Settings') {
             steps {
                 withCredentials([
                     azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}"),
@@ -116,47 +116,6 @@ pipeline {
             }
         }
    
-        stage('8. CD: Deploy to Staging Slot (Green)') {
-            steps {
-                withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
-                    sh """
-                        echo "Restarting Staging Slot to apply new image and configuration..."
-                        az webapp restart \
-                            --name ${env.APP_SERVICE_NAME} \
-                            --resource-group ${env.AZURE_RESOURCE_GROUP} \
-                            --slot ${env.STAGING_SLOT}
-                    """
-                }
-            }
-        }
-
-        stage('9. CD: Blue/Green Slot Swap') {
-            steps {
-                input message: "Promote deployment from Green slot to Production?", ok: "Swap Slots"
-                withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
-                    sh """
-                        echo "Swapping Green slot into Production..."
-                        az webapp deployment slot swap \
-                            --name ${env.APP_SERVICE_NAME} \
-                            --resource-group ${env.AZURE_RESOURCE_GROUP} \
-                            --slot ${env.STAGING_SLOT} \
-                            --target-slot production
-                    """
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "Pipeline executed successfully! Production environment updated."
-        }
-        failure {
-            echo "Pipeline failed. Review console logs."
-        }
-    }
-}
-
         stage('8. CD: Deploy to Staging Slot (Green)') {
             steps {
                 withCredentials([azureServicePrincipal(credentialsId: "${env.AZURE_CREDENTIALS_ID}")]) {
