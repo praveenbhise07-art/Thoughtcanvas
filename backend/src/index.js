@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { SecretClient } = require("@azure/keyvault-secrets");
 const { DefaultAzureCredential } = require("@azure/identity");
 
@@ -15,8 +16,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Root route
-app.get('/', (req, res) => {
+// API Routes
+app.get('/api', (req, res) => {
   res.json({ message: 'Welcome to ThoughtCanvas API.' });
 });
 
@@ -25,9 +26,17 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'ThoughtCanvas API is online 🚀' });
 });
 
-// Routes
+// Feature Routes
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
+
+// --- Serve Frontend Static Files ---
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Catch-all route to support React Client-Side Routing (SPA)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
 // Function to load the single connection string from Azure Key Vault if configured
 async function loadSecretsFromKeyVault() {
@@ -39,7 +48,6 @@ async function loadSecretsFromKeyVault() {
       const url = `https://${vaultName}.vault.azure.net`;
       const client = new SecretClient(url, credential);
 
-      // Fetch the single connection string secret you created in Key Vault
       const secret = await client.getSecret("postgres-connection-string");
       process.env.DB_CONNECTION_STRING = secret.value;
       
