@@ -1,25 +1,26 @@
-FROM node:20-alpine
+# --- Stage 1: Build the React Frontend ---
+FROM node:18-alpine AS frontend-build
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
 
+# --- Stage 2: Build and Run the Node.js Backend ---
+FROM node:18-alpine
 WORKDIR /app
 
-# Copy dependency manifests first
-COPY package.json ./
-COPY package-lock.json* ./
+# Install backend dependencies
+COPY backend/package*.json ./
+RUN npm install --production
 
-# Install production dependencies with unsafe-perm / network flags if needed
-RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
+# Copy backend source code
+COPY backend/ ./
 
-# Copy application source code
-COPY src/ ./src/
+# Copy built static files from Stage 1 into backend's public directory
+COPY --from=frontend-build /app/frontend/dist ./public
 
-# Create non-root user and set ownership securely
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup && \
-    chown -R appuser:appgroup /app
-
-# Switch to non-root user
-USER appuser
-
-EXPOSE 5000
+ENV PORT=80
+EXPOSE 80
 
 CMD ["node", "src/index.js"]
