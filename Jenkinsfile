@@ -45,11 +45,14 @@ pipeline {
         }
 
         stage('5. Build Docker Image') {
-            steps {
-                sh 'docker builder prune -f'
-                sh 'docker build --no-cache -t ${REGISTRY}/${IMAGE_NAME}:${TAG} -t ${REGISTRY}/${IMAGE_NAME}:latest -f backend/Dockerfile backend/'
-            }
+    steps {
+        script {
+            // Build from the project root (.) using the root Dockerfile
+            sh "docker builder prune -f"
+            sh "docker build --no-cache -t ${REGISTRY}/${IMAGE_NAME}:${TAG} -t ${REGISTRY}/${IMAGE_NAME}:latest -f Dockerfile ."
         }
+    }
+}
 
         stage('6. Push Image to ACR') {
             steps {
